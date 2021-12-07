@@ -2,6 +2,8 @@ import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import * as Crypto from 'crypto';
 import { Cache } from 'cache-manager';
 import { UrlData } from 'src/types';
+import configuration from 'src/config/configuration';
+
 @Injectable()
 export class ShortenerService {
   private readonly cryptoJs: any;
@@ -50,7 +52,11 @@ export class ShortenerService {
 
     const code = await this.encodeFromURL(url);
     const responseData: UrlData = { code, longUrl: url };
+    const baseUrl = configuration().api.baseUrl;
 
+    if (baseUrl) {
+      responseData.shortUrl = `${baseUrl}/${code}`;
+    }
     return responseData;
   }
 
@@ -61,6 +67,12 @@ export class ShortenerService {
       throw new Error('invalid code provided');
     }
 
-    return { code, longUrl };
+    const responseData: UrlData = { code, longUrl };
+    const baseUrl = configuration().api.baseUrl;
+
+    if (baseUrl) {
+      responseData.shortUrl = `${baseUrl}/${code}`;
+    }
+    return responseData;
   }
 }
