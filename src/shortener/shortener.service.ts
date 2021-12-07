@@ -1,6 +1,7 @@
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import * as Crypto from 'crypto';
 import { Cache } from 'cache-manager';
+import { UrlData } from 'src/types';
 @Injectable()
 export class ShortenerService {
   private readonly cryptoJs: any;
@@ -40,5 +41,26 @@ export class ShortenerService {
 
   async getURLFromCode(code: string): Promise<string> {
     return this.cacheManager.get(code);
+  }
+
+  async encodeURL(url: string): Promise<UrlData> {
+    if (!url) {
+      throw new Error('invalid url provided');
+    }
+
+    const code = await this.encodeFromURL(url);
+    const responseData: UrlData = { code, longUrl: url };
+
+    return responseData;
+  }
+
+  async decodeURL(code: string): Promise<UrlData> {
+    const longUrl = await this.getURLFromCode(code);
+
+    if (!longUrl) {
+      throw new Error('invalid code provided');
+    }
+
+    return { code, longUrl };
   }
 }
