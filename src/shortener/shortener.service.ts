@@ -2,7 +2,7 @@ import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import * as Crypto from 'crypto';
 import { Cache } from 'cache-manager';
 import { UrlData } from 'src/types';
-import configuration from 'src/config/configuration';
+import configuration from '../config/configuration';
 
 @Injectable()
 export class ShortenerService {
