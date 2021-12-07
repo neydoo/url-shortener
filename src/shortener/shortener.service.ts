@@ -16,4 +16,29 @@ export class ShortenerService {
       .slice(0, 5);
     return code;
   }
+
+  async encodeFromURL(longUrl: string): Promise<string> {
+    // to make sure that the code returned is unique,
+    // 1. generate code
+    // 2. query the cache with the code,
+    // if data exists, repeat 1 & 2, until a unique code is generated.
+    // 3. save code to cache
+    let isUnique = false;
+    let code: string;
+    while (!isUnique) {
+      code = await this.generateCode();
+      const existingCode = await this.getURLFromCode(code);
+      if (!existingCode) {
+        isUnique = true;
+        await this.cacheManager.set(code, longUrl, {
+          ttl: 10000, // default time is 5 secs
+        });
+        return code;
+      }
+    }
+  }
+
+  async getURLFromCode(code: string): Promise<string> {
+    return this.cacheManager.get(code);
+  }
 }
